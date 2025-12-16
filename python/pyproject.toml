@@ -1,0 +1,20 @@
+[project]
+name = "trakr_sdk"
+version = "1.0.0"
+authors = [
+  { name="Addverb Technologies", email="humanoid@addverb.com" },
+]
+description = "Trakr SDK for Communication over Socket"
+readme = "README.md"
+requires-python = ">=3.8, <3.9"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Operating System :: POSIX :: Linux",
+]
+
+[build-system]
+requires = [
+    "setuptools >= 70.0.0",
+    "numpy >= 1.19",
+]
+build-backend = "setuptools.build_meta"
