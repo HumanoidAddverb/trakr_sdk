@@ -13,6 +13,7 @@
 #define ALLIED_DATA_TYPES_H_
 
 #include <eigen3/Eigen/Core>
+#include <stdint.h>
 
 /**
  * @brief Holds the continuous commands
@@ -27,12 +28,14 @@ namespace AlliedDataTypes
         Eigen::Matrix<double, 12, 1> tor = Eigen::Matrix<double, 12, 1>::Zero();
         Eigen::Matrix<double, 12, 1> kp = Eigen::Matrix<double, 12, 1>::Zero();
         Eigen::Matrix<double, 12, 1> kd = Eigen::Matrix<double, 12, 1>::Zero();
+        uint64_t timestamp = 0;
     };
 
     struct TorsoState
     {
         Eigen::Matrix<double, 6, 1> pos = Eigen::Matrix<double, 6, 1>::Zero();
         Eigen::Matrix<double, 6, 1> vel = Eigen::Matrix<double, 6, 1>::Zero();
+        uint64_t timestamp = 0;
     };
 
     struct IMUState
@@ -41,12 +44,13 @@ namespace AlliedDataTypes
         Eigen::Matrix<double, 3, 1> gyro = Eigen::Matrix<double, 3, 1>::Zero();
         Eigen::Matrix<double, 3, 1> mag = Eigen::Matrix<double, 3, 1>::Zero();
         Eigen::Matrix<double, 3, 1> euler = Eigen::Matrix<double, 3, 1>::Zero();
+        uint64_t timestamp = 0;
     };
 
     struct BatteryState
     {
-        double voltage;
-        double current;
+        double voltage = 0;
+        double current = 0;
     };
 
     struct Plan

@@ -8,20 +8,23 @@ bool Robot::setup(QuadDataTypes::CONFIG_SET &config, AlliedDataTypes::Plan &plan
 {
     if(!net_.setup())
     {
+        std::cout << "[ROBOT] Failed to setup Network" << std::endl;
         return false;
     }
 
     dataAdaptor_(plan_, config);
     dataAdaptor_(plan_, plan);
-    plan_.config.status_ = false;
+    plan_.config.status = 0;
 
     if(!net_.setData(plan_))
     {
+        std::cout << "[ROBOT] Failed to set data" << std::endl;
         return false;
     }
 
     if(!net_.connect(ip_addr_, port_))
     {
+        std::cout << "[ROBOT] Failed to connect to Network" << std::endl;
         return false;
     }
 
@@ -38,27 +41,43 @@ bool Robot::setup(QuadDataTypes::CONFIG_SET &config, AlliedDataTypes::Plan &plan
  */
 bool Robot::run()
 {
-    if(!net_.readData())
+    if(!net_.isConnected())
     {
-        std::cout << "[ROBOT] Failed to read data" << std::endl;
+        std::cout << "[ROBOT] Socket disconnected" << std::endl;
         return false;
     }
 
-    if(!net_.getData(state_))
+    if(net_.readData())
     {
-        return false;
-    }
+        if(!net_.getData(state_))
+        {
+            std::cout << "[ROBOT] Unable to get data from Network" << std::endl;
+            return false;
+        }
 
-    // Reset once acknowledged by server
-    if((state_.config.status_ > 0))
-    {
-        plan_.config.status_ = 0;
-        config_status_ = state_.config.status_;
-        state_.config.status_ = 0;
+        // Reset once acknowledged by server
+        if((state_.config.status > 0))
+        {
+            plan_.config.status = 0;
+            if(state_.config.status > 1)
+            {
+                plan_.config.status = -1;
+            }
+            config_status_ = state_.config.status;
+            state_.config.status = 0;
+        }
+        else
+        {
+            if(plan_.config.status < 0)
+            {
+                plan_.config.status = 0;
+            }
+        }
     }
 
     if(!net_.setData(plan_))
     {
+        std::cout << "[ROBOT] Unable to set data to network" << std::endl;
         return false;
     }
 
@@ -71,7 +90,6 @@ bool Robot::run()
     return true;
 }
 
-
 /**
  * @brief Checking if robot bringUp is done
  *
@@ -80,13 +98,13 @@ bool Robot::bringUp_()
 {
     std::cout << "[ROBOT] Waiting for Robot to BringUp!" << std::endl;
 
-    state_.config.status_ = -1;
+    state_.config.status = -1;
 
     QuadDataTypes::CONFIG_SET config;
 
     int ctr = 0;
 
-    while(state_.config.status_ < 0)
+    while((state_.config.status < 0) || (ctr < 100))
     {
         ctr++;
 
@@ -96,29 +114,110 @@ bool Robot::bringUp_()
             return false;
         }
 
-        if(ctr < 10)
+        if(ctr < 100)
         {
-            usleep(100000);
+            getConfigStatus();
+            usleep(1000);
             continue;
         }
 
         // Some internal state machine to check status
-        if(state_.config.status_ == -2)
+        if(state_.config.status == -2)
         {
             getConfig(config);
             setConfig(config);
-            plan_.config.status_ = 1;
+            plan_.config.status = 1;
         }
         else
         {
-            plan_.config.status_ = 0;
+            plan_.config.status = 0;
         }
-        usleep(100000);
+        usleep(1000);
     }
 
-    plan_.config.status_ = 0;
+    getConfigStatus();
+    plan_.config.status = 0;
+
+    setMode_(config);
 
     std::cout << "[ROBOT] Robot BringUp Completed!" << std::endl;
+    return true;
+}
+
+/**
+ * @brief Switching mode accordingly
+ *
+ */
+bool Robot::setMode_(QuadDataTypes::CONFIG_SET &config)
+{
+    if(mode_ != LOW_LEVEL)
+    {
+        usleep(1000000);
+        return true;
+    }
+
+    int ctr = 0;
+
+    // Fetching latest data for some time (2s)
+    while(isAlive() && (ctr < 2000))
+    {
+        ctr++;
+
+        if(!run())
+        {
+            std::cout << "[ROBOT] Failed in SetMode" << std::endl;
+            return false;
+        }
+
+        getConfigStatus();
+        getConfig(config);
+
+        usleep(1000);
+    }
+
+    // Setting config for low-level mode
+    while(isAlive())
+    {
+        if(!run())
+        {
+            std::cout << "[ROBOT] Failed in SetMode" << std::endl;
+            return false;
+        }
+
+        if(getConfigStatus() == 2)
+        {
+            break;
+        }
+
+        getConfig(config);
+        config.motion.planner = MotionDataTypes::TaskTypes::eMotion;
+        config.motion.strategy.type = MotionModes::eDeveloperMode;
+        setConfig(config);
+
+        usleep(1000);
+    }
+
+    // a fixed blocking delay where robot is performing initial transitions
+    ctr = 0;
+    // Fetching latest data for some time (2s)
+    while(isAlive() && (ctr < 2000))
+    {
+        ctr++;
+
+        if(!run())
+        {
+            std::cout << "[ROBOT] Failed in SetMode" << std::endl;
+            return false;
+        }
+
+        getConfigStatus();
+        getConfig(config);
+
+        usleep(1000);
+    }
+
+    std::cout << "[ROBOT] Switched to LowLevel/Developer Mode" << std::endl;
+
     return true;
 }
 
@@ -149,7 +248,10 @@ bool Robot::getData(AlliedDataTypes::State &state)
 bool Robot::setConfig(QuadDataTypes::CONFIG_SET &config)
 {
     dataAdaptor_(plan_, config);
-    plan_.config.status_ = 1;
+    if(plan_.config.status >= 0)
+    {
+        plan_.config.status = 1;
+    }
     return true;
 }
 
@@ -216,6 +318,10 @@ void Robot::dataAdaptor_(ClientNetworkConfig::AlliedPlan &send, QuadDataTypes::C
         send.config.motion.strategy.seq = static_cast<int>(config.motion.strategy.seq);
         break;
 
+        case MotionModes::eAIMode :
+        send.config.motion.strategy.seq = static_cast<int>(config.motion.strategy.seq);
+        break;
+
         default:
         send.config.motion.strategy.seq = 0;
         break;
@@ -271,12 +377,14 @@ void Robot::dataAdaptor_(ClientNetworkConfig::AlliedState &recv, AlliedDataTypes
         state.joint.kp[i] = recv.state.joint.kp[i];
         state.joint.kd[i] = recv.state.joint.kd[i];
     }
+    state.joint.timestamp = recv.state.joint.timestamp;
 
     for(int i = 0; i < 6; i++)
     {
         state.torso.pos[i] = recv.state.torso.pos[i];
         state.torso.vel[i] = recv.state.torso.vel[i];
     }
+    state.torso.timestamp = recv.state.torso.timestamp;
 
     for(int i = 0; i < 3; i++)
     {
@@ -285,6 +393,7 @@ void Robot::dataAdaptor_(ClientNetworkConfig::AlliedState &recv, AlliedDataTypes
         state.imu.mag[i] = recv.state.imu.mag[i];
         state.imu.euler[i] = recv.state.imu.gyro[i];
     }
+    state.imu.timestamp = recv.state.imu.timestamp;
 }
 
 /**

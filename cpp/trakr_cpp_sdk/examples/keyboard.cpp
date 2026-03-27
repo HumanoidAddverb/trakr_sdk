@@ -138,6 +138,7 @@ void doAction()
     case 33:
         config.motion.planner = MotionDataTypes::TaskTypes::eMotion;
         config.motion.strategy.type = MotionModes::eAIMode;
+        config.motion.strategy.seq = MotionGaits::eWalk;
         if(changed)
         {
             set_config = true;
@@ -146,6 +147,17 @@ void doAction()
         break;
 
     case 34:
+        config.motion.planner = MotionDataTypes::TaskTypes::eMotion;
+        config.motion.strategy.type = MotionModes::eAIMode;
+        config.motion.strategy.seq = MotionGaits::eClimb;
+        if(changed)
+        {
+            set_config = true;
+            changed = false;
+        }
+        break;
+
+    case 35:
         config.motion.planner = MotionDataTypes::TaskTypes::eMotion;
         config.motion.strategy.type = MotionModes::eDeveloperMode;
         if(changed)
@@ -288,8 +300,9 @@ int main()
 
         // this is feedback for last config set.
         // 0 . no config change was requested
-        // 1 . Accepted
-        // 2 . Rejected 
+        // 1 . Requested
+        // 2 . Accepted
+        // 3 . Rejected 
         config_status = robot.getConfigStatus();
 
         // do user actions

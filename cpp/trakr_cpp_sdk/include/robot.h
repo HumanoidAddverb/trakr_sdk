@@ -15,6 +15,7 @@
 
 #include <unistd.h>
 #include <mutex>
+#include <iostream>
 
 #include "trakr_sdk.h"
 #include "quad_config.h"
@@ -22,6 +23,9 @@
 
 typedef Eigen::Matrix<double, NDOF, 1> JointVector;
 typedef Eigen::Matrix<double, 6, 1> Vector6;
+
+#define HIGH_LEVEL 0
+#define LOW_LEVEL 1
 
 /**
  * @brief Our Robot Wrapper
@@ -31,10 +35,11 @@ class Robot
 {
     public :
 
-    Robot(const char* ip_addr, const int port) 
+    Robot(const char* ip_addr, const int port, int mode = HIGH_LEVEL)
     {
         ip_addr_ = ip_addr;
         port_ = port;
+        mode_ = mode;
     };
 
     /// @brief Shutdown network before destructing
@@ -73,6 +78,8 @@ class Robot
 
     int port_;
 
+    int mode_;
+
     /// @brief Main robot network for communication
     ClientNetworkConfig::RobotNetwork net_;
 
@@ -97,6 +104,8 @@ class Robot
     void dataAdaptor_(ClientNetworkConfig::AlliedState &recv, QuadDataTypes::CONFIG_SET &config);
 
     bool bringUp_();
+
+    bool setMode_(QuadDataTypes::CONFIG_SET &config);
 };
 
 

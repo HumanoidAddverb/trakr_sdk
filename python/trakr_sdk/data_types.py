@@ -8,16 +8,19 @@ class JointState:
     tor = np.zeros(NDOF)
     kp = np.zeros(NDOF)
     kd = np.zeros(NDOF)
+    timestamp = 0
 
 class TorsoState:
     pos = np.zeros(6)
     vel = np.zeros(6)
+    timestamp = 0
 
 class IMUState:
     acc = np.zeros(3)
     gyro = np.zeros(3)
     mag = np.zeros(3)
     euler = np.zeros(3)
+    timestamp = 0
 
 class Plan:
     torso = TorsoState()

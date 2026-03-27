@@ -15,6 +15,9 @@ class MotionGaits(Enum):
     eStance = 0
     eTrot = 1
 
+    eWalk = 0
+    eClimb = 1
+
 class GestureTypes(Enum):
     eNone = 0
     eStandUp = 1

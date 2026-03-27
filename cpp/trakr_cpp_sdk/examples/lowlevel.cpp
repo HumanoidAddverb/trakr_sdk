@@ -1,19 +1,37 @@
-#include <chrono>
+#include <mutex>
 #include <thread>
-#include <iostream>
+#include <chrono>
+#include <cmath>
 
 #include "robot.h"
+
+// #include <torch/torch.h>
+// #include <torch/script.h>
 
 #define FREQ 400
 
 #define ROBOT_IP "192.168.3.50"
 #define ROBOT_PORT 15251
 
+
+void doInference()
+{
+
+}
+
+void doAction()
+{
+    doInference();
+}
+
 int main()
 {
+    // torch::set_num_threads(1);
+    // torch::set_num_interop_threads(1);
+
     unsigned long int sleep_ns_ = 1000000000/FREQ;
 
-    Robot robot(ROBOT_IP, ROBOT_PORT);
+    Robot robot(ROBOT_IP, ROBOT_PORT, LOW_LEVEL);
 
     AlliedDataTypes::Plan plan;
     AlliedDataTypes::State state;
@@ -28,13 +46,16 @@ int main()
     plan.torso.pos = Vector6::Zero();
     plan.torso.vel = Vector6::Zero();
 
-    robot.setup(config, plan);
+    if(!robot.setup(config, plan))
+    {
+        std::cout << "[MAIN] Failed to setup robot" << std::endl;
+    }
 
     robot.getConfig(config);
 
-    bool config_status;
+    bool config_status, set_config;
 
-    bool set_config = false;
+    auto begin = std::chrono::high_resolution_clock::now();
 
     while(robot.isAlive())
     {
@@ -55,8 +76,8 @@ int main()
         // 3 . Rejected 
         config_status = robot.getConfigStatus();
 
-        // do something here
-        std::cout << "IMU Acc: " << state.imu.acc.transpose() << std::endl;
+        // do user actions
+        doAction();
 
         if(set_config)
         {

@@ -45,8 +45,10 @@ class Speeds:
 def user_input():
     global running_, changed, var
 
+    print("Starting, enter a command and press enter")
+
     while(running_):
-        varbuf = input("Enter Command")
+        varbuf = input("Enter Command: ")
         try:
             var = int(varbuf)
         except:
@@ -114,10 +116,18 @@ def doAction():
     elif(var == 33):
         config.motion.planner = MotionDataTypes.TaskTypes.eMotion
         config.motion.strategy.type = MotionDataTypes.MotionModes.eAIMode
+        config.motion.strategy.seq = MotionDataTypes.MotionGaits.eWalk
         if(changed):
             set_config = True
             changed = False
     elif(var == 34):
+        config.motion.planner = MotionDataTypes.TaskTypes.eMotion
+        config.motion.strategy.type = MotionDataTypes.MotionModes.eAIMode
+        config.motion.strategy.seq = MotionDataTypes.MotionGaits.eClimb
+        if(changed):
+            set_config = True
+            changed = False
+    elif(var == 35):
         config.motion.planner = MotionDataTypes.TaskTypes.eMotion
         config.motion.strategy.type = MotionDataTypes.MotionModes.eDeveloperMode
         if(changed):
@@ -157,16 +167,16 @@ def doAction():
     if(config.motion.planner == MotionDataTypes.TaskTypes.eMotion):
         if(config.motion.strategy.type == MotionDataTypes.MotionModes.eClassicalMode):
             if(np.linalg.norm(plan.torso.vel) < 0.02):
-                config.motion.strategy.seq = MotionDataTypes.MotionGaits.eStance
-                set_config = True
+                if(config.motion.strategy.seq != MotionDataTypes.MotionGaits.eStance):
+                    config.motion.strategy.seq = MotionDataTypes.MotionGaits.eStance
+                    set_config = True
             else:
-                config.motion.strategy.seq = MotionDataTypes.MotionGaits.eTrot
-                set_config = True
+                if(config.motion.strategy.seq != MotionDataTypes.MotionGaits.eTrot):
+                    config.motion.strategy.seq = MotionDataTypes.MotionGaits.eTrot
+                    set_config = True
 
 def main():
     global set_config, running_
-
-    config.safety.llheartbeat.disable()
 
     user_ = threading.Thread(target=user_input)
 
@@ -184,6 +194,7 @@ def main():
 
     while(robot.isAlive()):
         time_s = perf_counter_ns()
+        
         if(not robot.run()):
             break
 
@@ -192,8 +203,9 @@ def main():
 
         # this is feedback for last config set.
         # 0 . no config change was requested
-        # 1 . Accepted
-        # 2 . Rejected 
+        # 1 . Requested
+        # 2 . Accepted
+        # 3 . Rejected 
         config_status = robot.getConfigStatus()
 
         doAction()

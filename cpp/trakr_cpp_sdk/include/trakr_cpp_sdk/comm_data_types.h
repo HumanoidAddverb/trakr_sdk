@@ -13,6 +13,7 @@
 
 #include <array>
 #include "comm_config.h"
+#include <stdint.h>
 
 #define NDOF 12
 
@@ -24,31 +25,34 @@ namespace SocketDataTypes
 {
     struct JointState
     {
-        std::array<float,NDOF> pos;
-        std::array<float,NDOF> vel;
-        std::array<float,NDOF> tor;
-        std::array<float,NDOF> kp;
-        std::array<float,NDOF> kd;
+        std::array<float,NDOF> pos {0};
+        std::array<float,NDOF> vel {0};
+        std::array<float,NDOF> tor {0};
+        std::array<float,NDOF> kp {0};
+        std::array<float,NDOF> kd {0};
+        uint64_t timestamp = 0;
     };
 
     struct TorsoState
     {
-        std::array<float,6> pos;
-        std::array<float,6> vel;
+        std::array<float,6> pos {0};
+        std::array<float,6> vel {0};
+        uint64_t timestamp = 0;
     };
 
     struct IMUState
     {
-        std::array<float,3> acc;
-        std::array<float,3> gyro;
-        std::array<float,3> mag;
-        std::array<float,3> euler;
+        std::array<float,3> acc {0};
+        std::array<float,3> gyro {0};
+        std::array<float,3> mag {0};
+        std::array<float,3> euler {0};
+        uint64_t timestamp = 0;
     };
 
     struct BatteryState
     {
-        float voltage;
-        float current;
+        float voltage = 0;
+        float current = 0;
     };
 
     struct Plan

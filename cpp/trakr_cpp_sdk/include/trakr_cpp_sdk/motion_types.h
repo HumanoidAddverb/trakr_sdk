@@ -28,13 +28,16 @@ enum class MotionModes
 }; 
 
 /**
- * \@brief Type of available gaits (only in eClassicalMode)
+ * \@brief Type of available gaits (only in eClassicalMode/eAIMode)
  * 
  */
 enum class MotionGaits 
 {
-    eStance, 
-    eTrot, 
+    eStance = 0, 
+    eTrot = 1,
+
+    eWalk = 0,
+    eClimb = 1,
 };
 
 #endif

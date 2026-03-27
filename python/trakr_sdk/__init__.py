@@ -1,1 +1,1 @@
-from .robot import QuadDataTypes, AlliedDataTypes, Robot, NDOF
+from .robot import QuadDataTypes, AlliedDataTypes, Robot, NDOF, RobotMode as Mode

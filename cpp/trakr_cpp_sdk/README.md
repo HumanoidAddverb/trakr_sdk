@@ -3,15 +3,16 @@ A minimal package that allows communicating with Trakr over a TCP/IP socket.
 Performs minimal (and mandatory) sanity checks over the data before creating and sending packets to robot.
 
 The package requires specific OS/Architecture to be installed,
- - Tested with **Ubuntu 22.04** and **Ubuntu 20.04**
- - **x86-64 Architecture** (ARM support may be added if needed)
+ - **>= Ubuntu 20.04** (or similar linux flavors; specifically *gcc9* and above)
+ - Supports both **amd64** and **aarch64** platforms
 
 And, has the following dependencies,
 - **build-essential** : Install with `sudo apt install build-essential`
 - **cmake** : Install with `sudo apt install cmake`
 - **libeigen3** : Install with `sudo apt install libeigen3-dev`
+- **pybind11** (optional) : See [`BINDINGS.md`](BINDINGS.md)
 
-This repository includes the sources for trakr_cpp_sdk CMake package, which can be used as a workspace, and can be installed as a CMake package and included in other CMake workspaces with `find_package(trakr_cpp_sdk)`. \
+This is a CMake package, which can be used as a workspace, or can be installed as a CMake package and included in other CMake workspaces with `find_package(trakr_cpp_sdk)`. (As is the case with ROS/ROS2 wrappers) \
 For usage methods for both, see instructions below.
 
 ## Usage
@@ -37,8 +38,10 @@ or
 
 > NOTE: The examples are built with the default IP address of Trakr (192.168.3.50). To change this address (if required), edit the *cpp* for examples under `examples/` directory, and re-build the code.
 
-### 2. Installing as CMake Package
-> NOTE: Use this mode if you wish to integrate this SDK within your C++ workspace.
+### 2. Installing as CMake Package (Required for Python/ROS Support)
+> This package is required to be installed by Python and ROS interfaces.\
+> Additionally, this also allows the SDK to be integrated within your C++ workspace/codebase.\
+> To do so, simply `find_package(trakr_cpp_sdk)` and link with your libraries/executables.
 
 To install the package as a CMake package that can be included in any workspace, \
 first *follow the instructions in (1.)*, and then run the command (within the `build/` directory),
@@ -47,7 +50,8 @@ sudo make install -j
 ```
 
 This installs the `trakr_cpp_sdk` as a library under `/usr/include` and `/usr/lib` directories. \
-To change the installation prefix (for eg., `/usr/local/`), edit the `CMAKE_PREFIX_PATH` in `CMakeLists.txt`.
+(And optionally installs the Python bindings in the local directory under `../../python/trakr_sdk/lib`)\
+To change the installation prefix (Not Recommended) (for eg., `/usr/local/`), edit the `CMAKE_PREFIX_PATH` in `CMakeLists.txt`.
 
 ## Usage
 
@@ -250,7 +254,7 @@ The `while` loop, considering that the latest data should reach Robot and should
 - Do not use any blocking method calls inside this while loop. If any computation from client requires such a method call, consider creating a different thread (either for Robot or Client's Blocking Call).
 - The while loop should be running at ~400Hz. A slower loop *might* cause less-optimal behavior.
 
-> Additional point to note is that since the SDK maintains its own buffers to send and receive the packets, the packets are sent-and-received in a *different thread*. This thread is created and started (after `setup()`) inside the SDK itself, and runs at a high frequency.
+> Additional point to note is that since the SDK maintains its own buffers to send and receive the packets, the packets are sent-and-received in a *different thread*. This thread is created and started (after `setup()`) inside the SDK itself, and runs at a high(er) frequency.
 
 ## Documentation
 

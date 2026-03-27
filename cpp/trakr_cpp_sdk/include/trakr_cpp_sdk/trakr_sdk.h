@@ -13,6 +13,7 @@
 
 #include "comm_data_types.h"
 #include "network_interface.h"
+#include <memory>
 
 namespace ClientNetworkConfig
 {
@@ -71,7 +72,7 @@ namespace ClientNetworkConfig
         private:
 
         /// @brief Pointer to our network implementation
-        NetworkInterface<AlliedPlan, AlliedState>* net_;
+        std::unique_ptr<NetworkInterface<AlliedPlan, AlliedState>> net_;
     };
 
 }

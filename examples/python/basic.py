@@ -36,8 +36,9 @@ def main():
 
         # this is feedback for last config set.
         # 0 . no config change was requested
-        # 1 . Accepted
-        # 2 . Rejected 
+        # 1 . Requested
+        # 2 . Accepted
+        # 3 . Rejected 
         config_status = robot.getConfigStatus()
 
         # do something here

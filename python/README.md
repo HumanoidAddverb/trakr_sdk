@@ -3,36 +3,38 @@ A minimal package that allows communicating with Trakr over a TCP/IP socket.
 Performs minimal (and mandatory) sanity checks over the data before creating and sending packets to robot.
 
 The package requires specific OS/Architecture to be installed,
- - **Ubuntu 20.04** (or equivalent linux flavor)
- - **x86-64 Architecture** (ARM support may be added if needed)
- - **Python == 3.8** (Other versions can be supported if needed)
+ - **Ubuntu 20.04 or above** (or equivalent linux flavor)
+ - **Python == 3.8** (Recommended, not tested on other versions)
+ - Python Bindings are generated as part of *trakr_cpp_sdk*, allowing support for both **aarch64** and **amd64** platforms.
 
 And, has the following dependencies,
 - **numpy >= 1.19** 
 
-This repository includes the sources for SDK, along with the packaged Python Wheel(s) (in GitHub Releases). For installation methods for both, see instructions below.
+This repository includes the sources for SDK. For installation methods for both, see instructions below.
 
 ## Installation
-There are two ways to install and use the package, depending on your requirements as a developer.
 > We assume that Python3.8 is installed. If not, create a separate Conda environment with Python3.8 as, \
 `conda create --name trakr python=3.8` && `conda activate trakr`
 
+### 0. Pre-requisites
+To use the SDK, bindings need to be generated and installed by *trakr_cpp_sdk*.\
+See [`../cpp/trakr_cpp_sdk/BINDINGS.md`](../cpp/trakr_cpp_sdk/BINDINGS.md) for details
+
 ### 1. Out-of-the-Box Installation (Recommended)
-To use the SDK without modifications, the latest _wheel_ from _releases_ can be installed as,
+To use the SDK without modifications, directly install the package as,
 ```
-python3.8 -m pip install "https://github.com/HumanoidAddverb/trakr_sdk/releases/download/v1.0.0/trakr_sdk-1.0.0-cp38-cp38-linux_x86_64.whl"
+python3.8 -m pip install .
 ```
 This installs the `trakr_sdk` package and can be imported in any code running in the same environment. 
-Supports/allows  code-completion in compatible IDE(s).
+Supports/allows  code-completion in compatible IDE(s).\
+Be sure to install [Step #0](#0-pre-requisites) before installing the package.
 
 ### 2. Experimental Installation (Advanced)
 > NOTE: Use this mode only and only if you are completely understand the consequences of your changes.
 
-To perform additions to the _trakr_sdk_ itself (modifications are NOT RECOMMENDED), the package can be installed from source through cloning the repository and installing the Python Package in _experimental_ mode.
+To perform additions to the _trakr_sdk_ itself (modifications are NOT RECOMMENDED), the package can be installed in _experimental_ mode.
 
 ```
-git clone "https://github.com/HumanoidAddverb/trakr_sdk"
-cd trakr_sdk/python
 python3.8 -m pip install -e .
 ```
 The `-e` flag installs the directory as an experimental package. This means that any changes made in this directory will be reflected in any and all programs that _import_ this package.
@@ -202,7 +204,7 @@ The `while` loop, considering that the latest data should reach Robot and should
 - Do not use any blocking method calls inside this while loop. If any computation from client requires such a method call, consider creating a different thread (either for Robot or Client's Blocking Call).
 - The while loop should be running at ~400Hz. A slower loop might cause less-optimal behavior.
 
-> Additional point to note is that since the SDK maintains its own buffers to send and receive the packets, the packets are sent-and-received in a *different thread*. This thread is created and started (after `setup()`) inside the SDK itself, and runs at a high frequency.
+> Additional point to note is that since the SDK maintains its own buffers to send and receive the packets, the packets are sent-and-received in a *different thread*. This thread is created and started (after `setup()`) inside the SDK itself, and runs at a high(er) frequency.
 
 ## Documentation
 

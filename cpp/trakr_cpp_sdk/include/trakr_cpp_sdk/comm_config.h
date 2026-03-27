@@ -24,17 +24,17 @@ namespace SocketDataTypes
     // Robot Master Config
     struct RobotConfig
     {
-        bool shutdown;
-        bool exit;
-        bool killed;
+        bool shutdown = false;
+        bool exit = false;
+        bool killed = false;
     };
 
 
     // MotionDataTypes config
     struct MotionBaseConfig
     {
-        int type;
-        int seq;
+        int type = 0;
+        int seq = 0;
     };
 
     struct MotionConfig
@@ -48,51 +48,51 @@ namespace SocketDataTypes
     // SafetyDataTypes config
     struct SafetyBaseConfig
     {
-        bool enabled;
+        bool enabled = false;
     };
     
 
     struct LLSafetyConfig : SafetyBaseConfig
     {
-        bool jpos;
-        bool jvel;
-        bool jtor;
-        bool dtor;
+        bool jpos = false;
+        bool jvel = false;
+        bool jtor = false;
+        bool dtor = false;
 
-        std::array<float, NDOF> lim_jpos_min;
-        std::array<float, NDOF> lim_jpos_max;
-        std::array<float, NDOF> lim_jvel;
-        std::array<float, NDOF> lim_jtor;
-        std::array<float, NDOF> lim_dtor;
+        std::array<float, NDOF> lim_jpos_min {0};
+        std::array<float, NDOF> lim_jpos_max {0};
+        std::array<float, NDOF> lim_jvel {0};
+        std::array<float, NDOF> lim_jtor {0};
+        std::array<float, NDOF> lim_dtor {0};
     };
 
     struct LLHeartbeatConfig : SafetyBaseConfig
     {
-        int init_disable_time;
+        int init_disable_time = 0;
 
-        bool enable_CAN;
-        int CAN_timeout;
+        bool enable_CAN = false;
+        int CAN_timeout = 0;
 
-        bool observe_jpos;
-        bool observe_jvel;
-        bool observe_jtor;
+        bool observe_jpos = false;
+        bool observe_jvel = false;
+        bool observe_jtor = false;
 
-        bool enable_IMU;
-        int IMU_timeout;
-        bool observe_accel;
-        bool observe_gyro;
+        bool enable_IMU = false;
+        int IMU_timeout = 0;
+        bool observe_accel = false;
+        bool observe_gyro = false;
     };
 
     struct TorsoSafetyConfig : SafetyBaseConfig
     {
-        bool observe_roll;
-        float roll_limit;
+        bool observe_roll = false;
+        float roll_limit = 0;
 
-        bool observe_pitch;
-        float pitch_limit;
+        bool observe_pitch = false;
+        float pitch_limit = 0;
 
-        bool observe_gyro;
-        float gyro_limit;
+        bool observe_gyro = false;
+        float gyro_limit = 0;
     };
     
     struct SafetyConfig
@@ -107,7 +107,7 @@ namespace SocketDataTypes
     struct Config
     {
         // Register used for config setting and acknowledgement
-        int status_ = -1; 
+        int status = -1; 
 
         RobotConfig master;
         MotionConfig motion;

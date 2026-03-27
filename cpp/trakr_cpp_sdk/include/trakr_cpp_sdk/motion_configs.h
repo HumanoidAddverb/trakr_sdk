@@ -27,8 +27,8 @@ namespace MotionDataTypes
     /// @brief basic config for all MotionPlannerInterface
     struct BaseConfig
     {
-        int type;
-        int seq;
+        int type = 0;
+        int seq = 0;
     };
 
     struct MotionConfig : BaseConfig
